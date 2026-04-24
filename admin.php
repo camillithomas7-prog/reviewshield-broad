@@ -27,6 +27,7 @@ $alters = [
     "ALTER TABLE leads ADD COLUMN assegnato VARCHAR(50) DEFAULT ''",
     "ALTER TABLE leads ADD COLUMN prossimo_contatto DATETIME DEFAULT NULL",
     "ALTER TABLE leads ADD COLUMN nr_count INT DEFAULT 0",
+    "ALTER TABLE leads ADD COLUMN attivita VARCHAR(200) DEFAULT ''",
     "ALTER TABLE leads MODIFY COLUMN stato VARCHAR(30) DEFAULT 'nuovo'",
 ];
 foreach ($alters as $sql) { try { $pdo->exec($sql); } catch(PDOException $e) {} }
@@ -78,8 +79,8 @@ if ($logged && isset($_POST['dismiss_reminder'])) {
     header('Location: admin.php'.$qs); exit;
 }
 if ($logged && isset($_POST['update_anagrafica'])) {
-    $pdo->prepare("UPDATE leads SET nome=?, cognome=?, email=?, telefono=? WHERE id=?")
-        ->execute([trim($_POST['nome']??''), trim($_POST['cognome']??''), trim($_POST['email']??''), trim($_POST['telefono']??''), $_POST['cid']]);
+    $pdo->prepare("UPDATE leads SET nome=?, cognome=?, email=?, telefono=?, attivita=? WHERE id=?")
+        ->execute([trim($_POST['nome']??''), trim($_POST['cognome']??''), trim($_POST['email']??''), trim($_POST['telefono']??''), trim($_POST['attivita']??''), $_POST['cid']]);
     $pdo->prepare("INSERT INTO log_attivita (lead_id,operatore,azione) VALUES (?,?,?)")->execute([$_POST['cid'],$_POST['operatore_azione']??'','Anagrafica aggiornata']);
     header('Location: admin.php'.$qs.'#lead-'.$_POST['cid']); exit;
 }
@@ -92,8 +93,8 @@ if ($logged && isset($_POST['add_manual'])) {
     if ($found) {
         $pdo->prepare("UPDATE leads SET fonte='whatsapp' WHERE id=?")->execute([$found['id']]);
     } else {
-        $pdo->prepare("INSERT INTO leads (nome, cognome, telefono, email, fonte, stato) VALUES (?, ?, ?, ?, 'whatsapp', 'nuovo')")
-            ->execute([trim($_POST['m_nome']??''),trim($_POST['m_cognome']??''),$tel,trim($_POST['m_email']??'')]);
+        $pdo->prepare("INSERT INTO leads (nome, cognome, telefono, email, attivita, fonte, stato) VALUES (?, ?, ?, ?, ?, 'whatsapp', 'nuovo')")
+            ->execute([trim($_POST['m_nome']??''),trim($_POST['m_cognome']??''),$tel,trim($_POST['m_email']??''),trim($_POST['m_attivita']??'')]);
     }
     header('Location: admin.php'); exit;
 }
@@ -346,6 +347,7 @@ body{font-family:'Inter',sans-serif;background:#f5f5f7;color:#333;min-height:100
       <input type="text" name="m_cognome" placeholder="Cognome">
       <input type="tel" name="m_telefono" placeholder="Telefono" required>
       <input type="email" name="m_email" placeholder="Email">
+      <input type="text" name="m_attivita" placeholder="Attività">
       <button type="submit" name="add_manual" value="1">+</button>
     </form>
   </div>
@@ -358,7 +360,7 @@ body{font-family:'Inter',sans-serif;background:#f5f5f7;color:#333;min-height:100
     $log_stmt = $pdo->prepare("SELECT * FROM log_attivita WHERE lead_id=? ORDER BY created_at DESC LIMIT 5");
     $log_stmt->execute([$c['id']]);
     $logs = $log_stmt->fetchAll(PDO::FETCH_ASSOC);
-    $search_blob = strtolower(($c['nome']??'').' '.($c['cognome']??'').' '.($c['email']??'').' '.preg_replace('/[^0-9]/','',($c['telefono']??'')));
+    $search_blob = strtolower(($c['nome']??'').' '.($c['cognome']??'').' '.($c['email']??'').' '.($c['attivita']??'').' '.preg_replace('/[^0-9]/','',($c['telefono']??'')));
   ?>
   <div class="lead <?=$is_scaduto?'scaduto':''?>" id="lead-<?=$c['id']?>" data-search="<?=htmlspecialchars($search_blob)?>" style="border-left-color:<?=$sc?>">
     <div class="lead__top">
@@ -377,6 +379,7 @@ body{font-family:'Inter',sans-serif;background:#f5f5f7;color:#333;min-height:100
           <input type="text" name="cognome" value="<?=htmlspecialchars($c['cognome']??'')?>" placeholder="Cognome" style="flex:1;min-width:90px;padding:5px 7px;border:1px solid #e0e0e0;border-radius:5px;font-size:12px;font-family:inherit;outline:none">
           <input type="email" name="email" value="<?=htmlspecialchars($c['email']??'')?>" placeholder="Email" style="flex:1.5;min-width:140px;padding:5px 7px;border:1px solid #e0e0e0;border-radius:5px;font-size:12px;font-family:inherit;outline:none">
           <input type="text" name="telefono" value="<?=htmlspecialchars($c['telefono']??'')?>" placeholder="Telefono" style="flex:1;min-width:110px;padding:5px 7px;border:1px solid #e0e0e0;border-radius:5px;font-size:12px;font-family:inherit;outline:none">
+          <input type="text" name="attivita" value="<?=htmlspecialchars($c['attivita']??'')?>" placeholder="Attività" style="flex:1.5;min-width:140px;padding:5px 7px;border:1px solid #e0e0e0;border-radius:5px;font-size:12px;font-family:inherit;outline:none">
           <button type="submit" name="update_anagrafica" value="1" class="btn-sm btn-blue">Salva</button>
           <button type="button" onclick="document.getElementById('nedit-<?=$c['id']?>').style.display='none';document.getElementById('nview-<?=$c['id']?>').style.display='block'" class="btn-sm" style="background:#eee;color:#333">Annulla</button>
         </form>
@@ -386,6 +389,9 @@ body{font-family:'Inter',sans-serif;background:#f5f5f7;color:#333;min-height:100
     <div class="lead__fields">
       <div class="lead__field"><div class="lead__field-label">Telefono</div><div class="lead__field-value"><a href="tel:<?=htmlspecialchars($c['telefono'])?>"><?=htmlspecialchars($c['telefono'])?></a></div></div>
       <div class="lead__field"><div class="lead__field-label">Fonte</div><div class="lead__field-value"><?=htmlspecialchars(ucfirst($c['fonte']??'form'))?></div></div>
+      <?php if(!empty($c['attivita'])): ?>
+      <div class="lead__field" style="grid-column:1/-1"><div class="lead__field-label">Attività</div><div class="lead__field-value"><?=htmlspecialchars($c['attivita'])?></div></div>
+      <?php endif; ?>
     </div>
     <div class="lead__badges">
       <span class="badge" style="background:<?=$sc?>20;color:<?=$sc?>"><?=$stato_label[$c['stato']]??ucfirst($c['stato'])?><?php if((int)($c['nr_count']??0)>0 && $c['stato']==='non_risponde'): ?> · NR <?=(int)$c['nr_count']?><?php endif; ?></span>

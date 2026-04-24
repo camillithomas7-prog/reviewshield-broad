@@ -15,6 +15,7 @@ $nome = trim($data['nome'] ?? '');
 $cognome = trim($data['cognome'] ?? '');
 $telefono = trim($data['telefono'] ?? '');
 $email = trim($data['email'] ?? '');
+$attivita = trim($data['attivita'] ?? '');
 
 if (!$nome || !$cognome || !$telefono || !$email) {
     echo json_encode(['ok' => false, 'error' => 'Compila tutti i campi: nome, cognome, email e telefono']);
@@ -29,9 +30,10 @@ try {
     $db = getDB();
     try { $db->exec("ALTER TABLE leads ADD COLUMN email VARCHAR(150) DEFAULT ''"); } catch (PDOException $e) {}
     try { $db->exec("ALTER TABLE leads ADD COLUMN fonte VARCHAR(20) DEFAULT 'form'"); } catch (PDOException $e) {}
+    try { $db->exec("ALTER TABLE leads ADD COLUMN attivita VARCHAR(200) DEFAULT ''"); } catch (PDOException $e) {}
 
-    $stmt = $db->prepare('INSERT INTO leads (nome, cognome, telefono, email, fonte, stato) VALUES (?, ?, ?, ?, ?, ?)');
-    $stmt->execute([$nome, $cognome, $telefono, $email, 'form', 'nuovo']);
+    $stmt = $db->prepare('INSERT INTO leads (nome, cognome, telefono, email, attivita, fonte, stato) VALUES (?, ?, ?, ?, ?, ?, ?)');
+    $stmt->execute([$nome, $cognome, $telefono, $email, $attivita, 'form', 'nuovo']);
     echo json_encode(['ok' => true]);
 } catch (Exception $e) {
     echo json_encode(['ok' => false, 'error' => 'Errore server']);
