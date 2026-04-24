@@ -178,18 +178,56 @@ header('Expires: 0');
         toChange.forEach(function(p){ p[0].textContent = p[1]; });
       }
       function hideWhatsappBubble(){
-        // Hide any fixed-position WhatsApp link (floating bubble)
+        // 1. Link diretti a wa.me/whatsapp in posizione fixed/sticky -> nascondi
         document.querySelectorAll('a[href*="wa.me"], a[href*="whatsapp"], a[href*="api.whatsapp"]').forEach(function(a){
           if (a.closest && a.closest('#lead-form-overlay')) return;
           try {
             var cs = getComputedStyle(a);
-            if (cs.position === 'fixed' || cs.position === 'sticky') {
-              a.style.display = 'none';
+            if (cs.position === 'fixed' || cs.position === 'sticky') a.style.display = 'none';
+          } catch(e){}
+        });
+        // 2. SVG con path WhatsApp (inizia con "M17.472") -> nascondi antenato fixed
+        document.querySelectorAll('svg path').forEach(function(path){
+          var d = path.getAttribute('d') || '';
+          if (d.indexOf('M17.472') === 0 || d.indexOf('17.472 14.382') > -1) {
+            var p = path;
+            for (var i=0; i<8 && p && p !== document.body; i++) {
+              try {
+                var cs = getComputedStyle(p);
+                if (cs.position === 'fixed' || cs.position === 'sticky') {
+                  p.style.display = 'none';
+                  return;
+                }
+              } catch(e){}
+              p = p.parentElement;
+            }
+            // Fallback: nascondi SVG e parent anche se non fixed (widget wrapper)
+            if (path.closest) {
+              var svg = path.closest('svg');
+              if (svg) {
+                var wrapper = svg.closest('a,button,div[class*="bubble" i],div[class*="chat" i],div[class*="whats" i]');
+                if (wrapper) wrapper.style.display = 'none';
+                else svg.style.display = 'none';
+              }
+            }
+          }
+        });
+        // 3. Qualsiasi elemento fixed/sticky nell'angolo in basso-destra con contenuto WhatsApp-related -> nascondi
+        document.querySelectorAll('a, button, div').forEach(function(el){
+          if (el.closest && el.closest('#lead-form-overlay')) return;
+          try {
+            var cs = getComputedStyle(el);
+            if (cs.position !== 'fixed' && cs.position !== 'sticky') return;
+            var b = parseInt(cs.bottom) || 999, r = parseInt(cs.right) || 999;
+            if (b > 200 || r > 200) return;
+            var inner = (el.innerHTML || '').toLowerCase();
+            if (/whatsapp|wa\.me|17\.472|rispondiamo in|risposta in|chatta con|scrivici/i.test(inner)) {
+              el.style.display = 'none';
             }
           } catch(e){}
         });
-        // Also hide any explicit floating-chat container
-        document.querySelectorAll('[class*="whatsapp" i], [id*="whatsapp" i], [class*="wa-bubble" i], [class*="floating-chat" i]').forEach(function(el){
+        // 4. Class/id contenenti whatsapp / bubble / chat-float
+        document.querySelectorAll('[class*="whatsapp" i], [id*="whatsapp" i], [class*="wa-bubble" i], [class*="floating-chat" i], [class*="chat-widget" i], [class*="FloatingChat" i]').forEach(function(el){
           if (el.closest && el.closest('#lead-form-overlay')) return;
           el.style.display = 'none';
         });
@@ -199,6 +237,12 @@ header('Expires: 0');
       else run();
       var mo = new MutationObserver(function(){ run(); });
       setTimeout(function(){ if (document.body) mo.observe(document.body, {childList:true, subtree:true, characterData:true}); }, 300);
+      // Fallback: riesegue ogni 1s per 20s per catturare widget con render ritardato (es. WhatsApp chat widget)
+      var ticks = 0;
+      var iv = setInterval(function(){
+        run();
+        if (++ticks > 20) clearInterval(iv);
+      }, 1000);
     })();
 
     // === INTERCETTA TUTTI I CTA DEL FUNNEL ===
