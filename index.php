@@ -39,23 +39,16 @@ header('Expires: 0');
 
     <!-- CSS pre-React: nascondi bubble WhatsApp PRIMA che il bundle lo renderizzi -->
     <style>
-      /* Nascondi bubble floating in posizione fixed con contenuto WhatsApp */
+      /* Nascondi link diretti wa.me/whatsapp (sono sempre solo link specifici) */
       a[href*="wa.me"], a[href*="whatsapp"], a[href*="api.whatsapp"] { display: none !important; }
-      /* SVG path WhatsApp (specifico logo) -> nascondi tutto l'albero fino all'antenato interattivo */
-      svg:has(path[d^="M17.472"]),
-      svg:has(path[d*="17.472 14.382"]),
+      /* Nascondi solo anchor/button che contengono SVG WhatsApp - NO div (per non rompere layout) */
       a:has(svg path[d^="M17.472"]),
-      button:has(svg path[d^="M17.472"]),
-      div:has(> svg path[d^="M17.472"]),
-      div:has(> * svg path[d^="M17.472"]),
-      div:has(> * > svg path[d^="M17.472"]),
-      div:has(> * > * > svg path[d^="M17.472"]) {
+      button:has(svg path[d^="M17.472"]) {
         display: none !important;
       }
-      /* Qualsiasi element con class/id whatsapp/bubble/float-chat */
+      /* Class/id specifici bubble */
       [class*="whatsapp" i], [id*="whatsapp" i],
-      [class*="wa-bubble" i], [class*="floating-chat" i],
-      [class*="chat-widget" i], [class*="FloatingChat" i],
+      [class*="wa-bubble" i],
       [class*="whats-bubble" i], [aria-label*="whatsapp" i] {
         display: none !important;
       }
