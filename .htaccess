@@ -6,6 +6,8 @@ AddType text/css .css
   RewriteEngine On
   RewriteBase /
   RewriteRule ^index\.php$ - [L]
+  # /admin (login React fake) -> admin.php (pannello PHP vero, password-only)
+  RewriteRule ^admin/?$ /admin.php [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . /index.php [L]
