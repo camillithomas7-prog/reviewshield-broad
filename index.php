@@ -163,29 +163,69 @@ header('Expires: 0');
         var f = document.createElement('form');
         f.id = RS_FORM_ID;
         f.setAttribute('novalidate','');
-        f.style.cssText = 'display:flex;flex-direction:column;gap:14px;width:100%;font-family:inherit';
+        // Card bianca self-contained: non dipende da nessun wrapper esterno
+        f.style.cssText = [
+          'background:#ffffff',
+          'padding:28px 24px',
+          'border-radius:20px',
+          'box-shadow:0 20px 60px rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.06)',
+          'border:1px solid rgba(5,150,105,.12)',
+          'display:flex',
+          'flex-direction:column',
+          'gap:14px',
+          'width:100%',
+          'max-width:460px',
+          'margin:0 auto',
+          'box-sizing:border-box',
+          'font-family:inherit',
+          'color:#111827'
+        ].join(';');
+
+        var inputCss = 'width:100%;padding:13px 14px;border:1px solid #e5e7eb;border-radius:10px;font-size:15px;box-sizing:border-box;font-family:inherit;outline:none;background:#ffffff;color:#111827;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none';
+        var labelCss = 'display:block;font-weight:600;font-size:13.5px;margin-bottom:6px;color:#111827;letter-spacing:-.01em';
+
         f.innerHTML = [
-          '<div>',
-            '<label style="display:block;font-weight:600;font-size:14px;margin-bottom:6px;color:#111827">Nome e cognome</label>',
-            '<input id="rs-nome" type="text" placeholder="Mario Rossi" autocomplete="name" required style="width:100%;padding:12px 14px;border:1px solid #d1d5db;border-radius:10px;font-size:15px;box-sizing:border-box;font-family:inherit;outline:none;background:#fff;color:#111827">',
+          // Header
+          '<div style="text-align:center;margin-bottom:4px">',
+            '<h3 style="margin:0 0 6px;font-size:21px;font-weight:700;color:#111827;letter-spacing:-.02em">Richiedi Analisi Gratuita</h3>',
+            '<p style="margin:0;font-size:13.5px;color:#6b7280;line-height:1.4">Lascia i tuoi dati: ti ricontattiamo entro 24 ore</p>',
           '</div>',
+          // Nome
           '<div>',
-            '<label style="display:block;font-weight:600;font-size:14px;margin-bottom:6px;color:#111827">Email</label>',
-            '<input id="rs-email" type="email" placeholder="mario@studio.it" autocomplete="email" required style="width:100%;padding:12px 14px;border:1px solid #d1d5db;border-radius:10px;font-size:15px;box-sizing:border-box;font-family:inherit;outline:none;background:#fff;color:#111827">',
+            '<label for="rs-nome" style="'+labelCss+'">Nome e cognome</label>',
+            '<input id="rs-nome" type="text" placeholder="Mario Rossi" autocomplete="name" required style="'+inputCss+'">',
           '</div>',
+          // Email
           '<div>',
-            '<label style="display:block;font-weight:600;font-size:14px;margin-bottom:6px;color:#111827">Numero di telefono</label>',
-            '<input id="rs-tel" type="tel" placeholder="333 1234567" autocomplete="tel" required style="width:100%;padding:12px 14px;border:1px solid #d1d5db;border-radius:10px;font-size:15px;box-sizing:border-box;font-family:inherit;outline:none;background:#fff;color:#111827">',
+            '<label for="rs-email" style="'+labelCss+'">Email</label>',
+            '<input id="rs-email" type="email" placeholder="mario@studio.it" autocomplete="email" required style="'+inputCss+'">',
           '</div>',
+          // Telefono
           '<div>',
-            '<label style="display:block;font-weight:600;font-size:14px;margin-bottom:6px;color:#111827">Nome attività <span style="font-weight:400;color:#6b7280">(opzionale)</span></label>',
-            '<input id="rs-attivita" type="text" placeholder="Es. Ristorante La Terrazza Milano" autocomplete="organization" style="width:100%;padding:12px 14px;border:1px solid #d1d5db;border-radius:10px;font-size:15px;box-sizing:border-box;font-family:inherit;outline:none;background:#fff;color:#111827">',
+            '<label for="rs-tel" style="'+labelCss+'">Numero di telefono</label>',
+            '<input id="rs-tel" type="tel" placeholder="333 1234567" autocomplete="tel" required style="'+inputCss+'">',
           '</div>',
-          '<button id="rs-submit" type="submit" style="margin-top:6px;width:100%;padding:14px 20px;background:#059669;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s">',
+          // Nome attività con badge "Opzionale" inline a destra
+          '<div>',
+            '<label for="rs-attivita" style="display:flex;align-items:center;justify-content:space-between;font-weight:600;font-size:13.5px;margin-bottom:6px;color:#111827;letter-spacing:-.01em">',
+              '<span>Nome attività</span>',
+              '<span style="font-weight:500;color:#9ca3af;font-size:11.5px;background:#f3f4f6;padding:2px 8px;border-radius:999px;letter-spacing:.01em;text-transform:uppercase">Opzionale</span>',
+            '</label>',
+            '<input id="rs-attivita" type="text" placeholder="Es. Ristorante La Terrazza" autocomplete="organization" style="'+inputCss+'">',
+          '</div>',
+          // Submit
+          '<button id="rs-submit" type="submit" style="margin-top:6px;width:100%;padding:15px 20px;background:linear-gradient(180deg,#10b981,#059669);color:#ffffff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;transition:transform .1s,box-shadow .15s,filter .15s;box-shadow:0 6px 18px rgba(5,150,105,.35);letter-spacing:-.01em">',
             '<span>Invia richiesta</span>',
-            '<span style="font-size:18px;line-height:1">→</span>',
+            '<span style="font-size:18px;line-height:1;transform:translateY(-1px)">→</span>',
           '</button>',
-          '<p style="text-align:center;font-size:13px;color:#6b7280;margin:0">Inviando il form accetti la nostra <a href="/privacy" style="color:#059669;text-decoration:underline">Privacy Policy</a></p>'
+          // Trust row: 3 micro-punti
+          '<div style="display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:4px;font-size:12px;color:#6b7280">',
+            '<span style="display:inline-flex;align-items:center;gap:4px"><span style="color:#10b981;font-weight:700">✓</span>Risposta 24h</span>',
+            '<span style="display:inline-flex;align-items:center;gap:4px"><span style="color:#10b981;font-weight:700">✓</span>Analisi gratuita</span>',
+            '<span style="display:inline-flex;align-items:center;gap:4px"><span style="color:#10b981;font-weight:700">✓</span>Paghi a risultato</span>',
+          '</div>',
+          // Privacy
+          '<p style="text-align:center;font-size:11.5px;color:#9ca3af;margin:2px 0 0;line-height:1.4">Inviando il form accetti la nostra <a href="/privacy" style="color:#059669;text-decoration:underline">Privacy Policy</a></p>'
         ].join('');
 
         // Focus ring verde sui campi
