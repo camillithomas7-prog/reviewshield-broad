@@ -16,8 +16,12 @@ $cognome = trim($data['cognome'] ?? '');
 $telefono = trim($data['telefono'] ?? '');
 $email = trim($data['email'] ?? '');
 
-if (!$nome || !$cognome || !$telefono) {
-    echo json_encode(['ok' => false, 'error' => 'Compila tutti i campi obbligatori']);
+if (!$nome || !$cognome || !$telefono || !$email) {
+    echo json_encode(['ok' => false, 'error' => 'Compila tutti i campi: nome, cognome, email e telefono']);
+    exit;
+}
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    echo json_encode(['ok' => false, 'error' => 'Email non valida']);
     exit;
 }
 
