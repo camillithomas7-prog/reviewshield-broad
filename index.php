@@ -17,131 +17,63 @@ header('Expires: 0');
 
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://reviewshield.it" />
-    <meta property="og:image" content="https://reviewshieldita.lovable.app/og-image.jpg">
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="https://reviewshieldita.lovable.app/og-image.jpg">
-
-    <!-- TODO: Google Analytics (GA4) — sostituire G-XXXXXXXXXX con il tuo ID -->
-    <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-XXXXXXXXXX');
-    </script> -->
-
-    <!-- TODO: Meta Pixel — sostituire YOUR_PIXEL_ID col tuo Pixel ID -->
-    <!-- <script>
-      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-      fbq('init', 'YOUR_PIXEL_ID');
-      fbq('track', 'PageView');
-    </script> -->
-
+    <meta property="og:image" content="/og-image.jpg">
     <meta property="og:title" content="ReviewShield">
-    <meta name="twitter:title" content="ReviewShield">
     <meta property="og:description" content="Rimuoviamo le recensioni negative da Google. Prima analisi gratuita, paghi solo a risultato ottenuto">
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="/og-image.jpg">
+    <meta name="twitter:title" content="ReviewShield">
     <meta name="twitter:description" content="Rimuoviamo le recensioni negative da Google. Prima analisi gratuita, paghi solo a risultato ottenuto">
+
+    <!-- Favicon ReviewShield (scudo verde con spunta) -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/icon-192.png">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#059669">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="/icon-192.png">
+
+    <!-- TODO: Google Analytics (GA4) — sostituire G-XXXXXXXXXX col tuo ID -->
+    <!-- TODO: Meta Pixel — sostituire YOUR_PIXEL_ID col tuo Pixel ID -->
+
+    <!-- CSS pre-React: nascondi bubble WhatsApp PRIMA che il bundle lo renderizzi -->
+    <style>
+      /* Nascondi bubble floating in posizione fixed con contenuto WhatsApp */
+      a[href*="wa.me"], a[href*="whatsapp"], a[href*="api.whatsapp"] { display: none !important; }
+      /* SVG path WhatsApp (specifico logo) -> nascondi tutto l'albero fino all'antenato interattivo */
+      svg:has(path[d^="M17.472"]),
+      svg:has(path[d*="17.472 14.382"]),
+      a:has(svg path[d^="M17.472"]),
+      button:has(svg path[d^="M17.472"]),
+      div:has(> svg path[d^="M17.472"]),
+      div:has(> * svg path[d^="M17.472"]),
+      div:has(> * > svg path[d^="M17.472"]),
+      div:has(> * > * > svg path[d^="M17.472"]) {
+        display: none !important;
+      }
+      /* Qualsiasi element con class/id whatsapp/bubble/float-chat */
+      [class*="whatsapp" i], [id*="whatsapp" i],
+      [class*="wa-bubble" i], [class*="floating-chat" i],
+      [class*="chat-widget" i], [class*="FloatingChat" i],
+      [class*="whats-bubble" i], [aria-label*="whatsapp" i] {
+        display: none !important;
+      }
+    </style>
+
     <script type="module" crossorigin src="/assets/index-DW4n5zfc.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-BNl2Bqut.css">
   </head>
 
   <body>
-    <!-- TODO: Meta Pixel noscript fallback -->
-    <!-- <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=YOUR_PIXEL_ID&ev=PageView&noscript=1"/></noscript> -->
     <div id="root"></div>
 
-    <!-- LEAD FORM OVERLAY -->
-    <div id="lead-form-overlay" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px">
-      <div style="background:#0f1a14;border:1px solid rgba(5,150,105,.2);border-radius:16px;padding:32px;max-width:440px;width:100%;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.5)">
-        <button type="button" onclick="closeLeadForm()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#666;font-size:22px;cursor:pointer;line-height:1">&times;</button>
-        <h3 style="color:#fff;font-size:22px;font-weight:800;margin-bottom:4px;font-family:system-ui">Analisi Gratuita</h3>
-        <p style="color:#888;font-size:13px;margin-bottom:20px;font-family:system-ui">Lascia i tuoi dati e ti ricontattiamo entro 24h con l'analisi delle tue recensioni Google.</p>
-        <div id="lead-form-msg" style="display:none;padding:10px;border-radius:8px;margin-bottom:12px;font-size:13px;font-family:system-ui"></div>
-        <input id="lf-nome" type="text" placeholder="Nome" style="width:100%;padding:12px 16px;background:#1a2a20;border:1px solid #2a3a30;border-radius:10px;color:#fff;font-size:14px;margin-bottom:10px;outline:none;font-family:system-ui">
-        <input id="lf-cognome" type="text" placeholder="Cognome" style="width:100%;padding:12px 16px;background:#1a2a20;border:1px solid #2a3a30;border-radius:10px;color:#fff;font-size:14px;margin-bottom:10px;outline:none;font-family:system-ui">
-        <input id="lf-email" type="email" placeholder="Email" required style="width:100%;padding:12px 16px;background:#1a2a20;border:1px solid #2a3a30;border-radius:10px;color:#fff;font-size:14px;margin-bottom:10px;outline:none;font-family:system-ui">
-        <input id="lf-telefono" type="tel" placeholder="Numero di telefono" required style="width:100%;padding:12px 16px;background:#1a2a20;border:1px solid #2a3a30;border-radius:10px;color:#fff;font-size:14px;margin-bottom:16px;outline:none;font-family:system-ui">
-        <button type="button" onclick="submitLead()" id="lf-submit" style="width:100%;padding:14px;background:#059669;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:system-ui">Richiedi Analisi Gratuita</button>
-      </div>
-    </div>
+    <!-- Success banner per lead inviato -->
+    <div id="rs-lead-banner" style="display:none;position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:99999;background:#059669;color:#fff;padding:14px 24px;border-radius:12px;font-family:system-ui,-apple-system,sans-serif;font-size:14px;font-weight:600;box-shadow:0 10px 40px rgba(0,0,0,.3)"></div>
 
     <script>
-    function preloadFromPage(){
-      // Cerca un form/input con nome+cognome pre-compilato nel React app
-      var inputs = document.querySelectorAll('input[type="text"]:not([id^="lf-"]), input[type="tel"]:not([id^="lf-"]), input[type="email"]:not([id^="lf-"])');
-      inputs.forEach(function(inp){
-        var v = (inp.value||'').trim();
-        if (!v) return;
-        var ph = ((inp.placeholder||'')+' '+(inp.name||'')+' '+(inp.getAttribute('aria-label')||'')).toLowerCase();
-        if (inp.type === 'tel' || /tel|phone|numero/i.test(ph)) {
-          var t = document.getElementById('lf-telefono');
-          if (t && !t.value) t.value = v;
-        } else if (inp.type === 'email' || /email|mail/i.test(ph)) {
-          var e = document.getElementById('lf-email');
-          if (e && !e.value) e.value = v;
-        } else if (/nome|name/i.test(ph)) {
-          // Splitta "Mario Rossi" in nome + cognome se possibile
-          var parts = v.split(/\s+/);
-          var n = document.getElementById('lf-nome');
-          var c = document.getElementById('lf-cognome');
-          if (n && !n.value) n.value = parts[0] || '';
-          if (c && !c.value && parts.length > 1) c.value = parts.slice(1).join(' ');
-        }
-      });
-    }
-    function openLeadForm(){
-      try { preloadFromPage(); } catch(e){}
-      var ov=document.getElementById('lead-form-overlay');
-      ov.style.display='flex';
-      setTimeout(function(){
-        var n=document.getElementById('lf-nome');
-        if(n && !n.value) n.focus();
-        else {
-          var t=document.getElementById('lf-telefono');
-          if(t && !t.value) t.focus();
-        }
-      },100);
-    }
-    function closeLeadForm(){
-      document.getElementById('lead-form-overlay').style.display='none';
-    }
-    window.openLeadForm=openLeadForm;
-
-    function submitLead(){
-      var nome=document.getElementById('lf-nome').value.trim();
-      var cognome=document.getElementById('lf-cognome').value.trim();
-      var email=document.getElementById('lf-email').value.trim();
-      var telefono=document.getElementById('lf-telefono').value.trim();
-      var msg=document.getElementById('lead-form-msg');
-      var btn=document.getElementById('lf-submit');
-      function showErr(t){msg.style.display='block';msg.style.background='rgba(239,68,68,.15)';msg.style.color='#ef4444';msg.textContent=t;}
-      function showOk(t){msg.style.display='block';msg.style.background='rgba(34,197,94,.15)';msg.style.color='#22c55e';msg.textContent=t;}
-      if(!nome||!cognome||!email||!telefono){showErr('Compila tutti i campi: nome, cognome, email e telefono');return}
-      // Valida email base
-      if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){showErr('Email non valida');return}
-      btn.disabled=true;btn.textContent='Invio in corso...';
-      fetch('submit.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nome:nome,cognome:cognome,email:email,telefono:telefono})})
-      .then(function(r){return r.json()}).then(function(d){
-        btn.disabled=false;btn.textContent='Richiedi Analisi Gratuita';
-        if(d.ok){
-          showOk('Grazie! Ti ricontattiamo entro 24 ore.');
-          document.getElementById('lf-nome').value='';
-          document.getElementById('lf-cognome').value='';
-          document.getElementById('lf-email').value='';
-          document.getElementById('lf-telefono').value='';
-          setTimeout(closeLeadForm, 2200);
-        } else {showErr(d.error||'Errore');}
-      }).catch(function(){btn.disabled=false;btn.textContent='Richiedi Analisi Gratuita';showErr('Errore di connessione');});
-    }
-
-    // === PATCH React bundle: rimuovi riferimenti WhatsApp, usa solo form lead ===
     (function(){
+      // Text replacements per rimuovere ogni riferimento residuo a WhatsApp
       var TEXT_REPL = [
         [/Scrivici su WhatsApp/g, 'Richiedi Analisi Gratuita'],
         [/Invia su WhatsApp/g, 'Invia richiesta'],
@@ -150,6 +82,7 @@ header('Expires: 0');
         [/ti si apre WhatsApp con il messaggio pronto/g, 'ti ricontattiamo entro 24 ore'],
         [/Risposta entro 2 ore/g, 'Ti ricontattiamo entro 24 ore'],
         [/risposta entro 2 ore/g, 'ti ricontattiamo entro 24 ore'],
+        [/Rispondiamo in 2 min/g, 'Ti ricontattiamo entro 24 ore'],
         [/Scrivici ora/g, 'Richiedi analisi'],
         [/Scrivici/g, 'Richiedi analisi'],
         [/via WhatsApp/g, ''],
@@ -158,12 +91,12 @@ header('Expires: 0');
         [/in WhatsApp/g, ''],
         [/\bWhatsApp\b/g, 'Analisi Gratuita'],
       ];
+
       function patchText(root){
         if(!root) return;
         var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
           acceptNode: function(n){
             if (!n.textContent || !n.textContent.trim()) return NodeFilter.FILTER_REJECT;
-            if (n.parentElement && n.parentElement.closest && n.parentElement.closest('#lead-form-overlay')) return NodeFilter.FILTER_REJECT;
             var tag = n.parentElement && n.parentElement.tagName;
             if (tag === 'SCRIPT' || tag === 'STYLE') return NodeFilter.FILTER_REJECT;
             return NodeFilter.FILTER_ACCEPT;
@@ -177,106 +110,246 @@ header('Expires: 0');
         }
         toChange.forEach(function(p){ p[0].textContent = p[1]; });
       }
-      function hideWhatsappBubble(){
-        // 1. Link diretti a wa.me/whatsapp in posizione fixed/sticky -> nascondi
-        document.querySelectorAll('a[href*="wa.me"], a[href*="whatsapp"], a[href*="api.whatsapp"]').forEach(function(a){
-          if (a.closest && a.closest('#lead-form-overlay')) return;
-          try {
-            var cs = getComputedStyle(a);
-            if (cs.position === 'fixed' || cs.position === 'sticky') a.style.display = 'none';
-          } catch(e){}
-        });
-        // 2. SVG con path WhatsApp (inizia con "M17.472") -> nascondi antenato fixed
+
+      function hideBubbleJS(){
+        // Backup del CSS :has() per browser che non lo supportano o per elementi che sfuggono
         document.querySelectorAll('svg path').forEach(function(path){
           var d = path.getAttribute('d') || '';
           if (d.indexOf('M17.472') === 0 || d.indexOf('17.472 14.382') > -1) {
-            var p = path;
-            for (var i=0; i<8 && p && p !== document.body; i++) {
+            var el = path;
+            for (var i=0; i<10 && el && el !== document.body; i++) {
+              if (el.tagName === 'A' || el.tagName === 'BUTTON') { el.style.display = 'none'; return; }
               try {
-                var cs = getComputedStyle(p);
-                if (cs.position === 'fixed' || cs.position === 'sticky') {
-                  p.style.display = 'none';
-                  return;
-                }
+                var cs = getComputedStyle(el);
+                if (cs.position === 'fixed' || cs.position === 'sticky') { el.style.display = 'none'; return; }
               } catch(e){}
-              p = p.parentElement;
+              el = el.parentElement;
             }
-            // Fallback: nascondi SVG e parent anche se non fixed (widget wrapper)
-            if (path.closest) {
-              var svg = path.closest('svg');
-              if (svg) {
-                var wrapper = svg.closest('a,button,div[class*="bubble" i],div[class*="chat" i],div[class*="whats" i]');
-                if (wrapper) wrapper.style.display = 'none';
-                else svg.style.display = 'none';
-              }
-            }
+            var svg = path.closest && path.closest('svg');
+            if (svg && svg.parentElement) svg.parentElement.style.display = 'none';
           }
         });
-        // 3. Qualsiasi elemento fixed/sticky nell'angolo in basso-destra con contenuto WhatsApp-related -> nascondi
-        document.querySelectorAll('a, button, div').forEach(function(el){
-          if (el.closest && el.closest('#lead-form-overlay')) return;
+        // Qualsiasi elemento fixed/sticky in basso-destra con innerHTML "WhatsApp"
+        document.querySelectorAll('a,button,div,aside').forEach(function(el){
           try {
             var cs = getComputedStyle(el);
             if (cs.position !== 'fixed' && cs.position !== 'sticky') return;
-            var b = parseInt(cs.bottom) || 999, r = parseInt(cs.right) || 999;
-            if (b > 200 || r > 200) return;
+            var b = parseInt(cs.bottom); var r = parseInt(cs.right);
+            if (isNaN(b) || isNaN(r) || b > 200 || r > 200) return;
             var inner = (el.innerHTML || '').toLowerCase();
-            if (/whatsapp|wa\.me|17\.472|rispondiamo in|risposta in|chatta con|scrivici/i.test(inner)) {
+            if (/whatsapp|wa\.me|17\.472|rispondiamo in|risposta in/i.test(inner)) {
               el.style.display = 'none';
             }
           } catch(e){}
         });
-        // 4. Class/id contenenti whatsapp / bubble / chat-float
-        document.querySelectorAll('[class*="whatsapp" i], [id*="whatsapp" i], [class*="wa-bubble" i], [class*="floating-chat" i], [class*="chat-widget" i], [class*="FloatingChat" i]').forEach(function(el){
-          if (el.closest && el.closest('#lead-form-overlay')) return;
-          el.style.display = 'none';
+      }
+
+      // === PATCH FORM HERO: inietta email+telefono + submit -> submit.php ===
+      // Il form React ha solo "Nome e cognome" + "Nome attività". Aggiungo email+telefono
+      // prima del bottone submit e intercetto il submit per POST a submit.php.
+      function findHeroForm(){
+        var forms = document.querySelectorAll('form');
+        for (var i=0; i<forms.length; i++) {
+          var f = forms[i];
+          if (f.dataset.rsPatched) continue;
+          var hasNameInput = false;
+          var inputs = f.querySelectorAll('input');
+          for (var j=0; j<inputs.length; j++) {
+            var ph = ((inputs[j].placeholder||'')+' '+(inputs[j].name||'')+' '+(inputs[j].getAttribute('aria-label')||'')).toLowerCase();
+            if (/nome|name|mario/i.test(ph)) { hasNameInput = true; break; }
+          }
+          if (hasNameInput) return f;
+        }
+        return null;
+      }
+
+      function patchHeroForm(){
+        var form = findHeroForm();
+        if (!form) return;
+        if (form.dataset.rsPatched) return;
+        form.dataset.rsPatched = '1';
+
+        // Trova il primo input esistente per clonare lo stile
+        var templateInput = form.querySelector('input[type="text"], input:not([type])');
+        if (!templateInput) return;
+        var submitBtn = form.querySelector('button[type="submit"], button:last-of-type') || form.querySelector('button');
+        if (!submitBtn) return;
+
+        // Costruisci nuovi input email + telefono clonando il template
+        function makeInput(type, placeholder, id){
+          var inp = templateInput.cloneNode(false);
+          inp.removeAttribute('value');
+          inp.removeAttribute('name');
+          inp.type = type;
+          inp.placeholder = placeholder;
+          inp.id = id;
+          inp.required = true;
+          inp.value = '';
+          return inp;
+        }
+        function makeLabel(text){
+          // Prova a clonare una label esistente, se c'è
+          var existingLabel = form.querySelector('label');
+          var lbl;
+          if (existingLabel) {
+            lbl = existingLabel.cloneNode(false);
+            lbl.textContent = text;
+          } else {
+            lbl = document.createElement('label');
+            lbl.textContent = text;
+            lbl.style.display = 'block';
+            lbl.style.fontWeight = '600';
+            lbl.style.fontSize = '14px';
+            lbl.style.marginBottom = '6px';
+            lbl.style.marginTop = '12px';
+          }
+          lbl.htmlFor = '';
+          return lbl;
+        }
+
+        // Wrapper group: clona il wrapper dell'input esistente
+        var templateWrap = templateInput.closest('div[class]') || templateInput.parentElement;
+        function makeField(labelText, type, placeholder, id){
+          var wrap;
+          if (templateWrap) {
+            wrap = templateWrap.cloneNode(false);
+            wrap.removeAttribute('style');
+          } else {
+            wrap = document.createElement('div');
+            wrap.style.marginBottom = '12px';
+          }
+          var lbl = makeLabel(labelText);
+          var inp = makeInput(type, placeholder, id);
+          wrap.appendChild(lbl);
+          wrap.appendChild(inp);
+          return wrap;
+        }
+
+        var emailField = makeField('Email', 'email', 'es. mario@studio.it', 'rs-hero-email');
+        var telField = makeField('Numero di telefono', 'tel', 'es. 333 1234567', 'rs-hero-tel');
+
+        // Inserisci prima del bottone (o del suo wrapper se è in un contenitore)
+        var anchor = submitBtn.closest('div:not(form)') || submitBtn;
+        anchor.parentElement.insertBefore(emailField, anchor);
+        anchor.parentElement.insertBefore(telField, anchor);
+
+        // Intercetta submit
+        form.addEventListener('submit', function(e){
+          e.preventDefault();
+          e.stopPropagation();
+          handleSubmit(form);
+        }, true);
+        // Anche click del bottone (nel caso il form non abbia submit listener)
+        submitBtn.addEventListener('click', function(e){
+          if (submitBtn.type !== 'submit') {
+            e.preventDefault();
+            e.stopPropagation();
+            handleSubmit(form);
+          }
+        }, true);
+      }
+
+      function showBanner(text, ok){
+        var b = document.getElementById('rs-lead-banner');
+        if (!b) return;
+        b.textContent = text;
+        b.style.background = ok ? '#059669' : '#dc2626';
+        b.style.display = 'block';
+        setTimeout(function(){ b.style.display = 'none'; }, 4500);
+      }
+
+      function handleSubmit(form){
+        // Raccogli nome+cognome dal primo input text
+        var txtInputs = form.querySelectorAll('input[type="text"], input:not([type]), input[type="search"]');
+        var raw = '';
+        for (var i=0; i<txtInputs.length; i++) {
+          var v = (txtInputs[i].value||'').trim();
+          if (v) { raw = v; break; }
+        }
+        var parts = raw.split(/\s+/).filter(Boolean);
+        var nome = parts[0] || '';
+        var cognome = parts.slice(1).join(' ') || '';
+        var email = (document.getElementById('rs-hero-email')||{}).value || '';
+        var tel = (document.getElementById('rs-hero-tel')||{}).value || '';
+        email = email.trim(); tel = tel.trim();
+
+        if (!nome || !cognome) { showBanner('Inserisci nome e cognome', false); return; }
+        if (!email) { showBanner('Inserisci email', false); return; }
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { showBanner('Email non valida', false); return; }
+        if (!tel) { showBanner('Inserisci telefono', false); return; }
+
+        var btn = form.querySelector('button[type="submit"], button:last-of-type') || form.querySelector('button');
+        var origText = btn ? btn.textContent : '';
+        if (btn) { btn.disabled = true; btn.textContent = 'Invio in corso...'; }
+
+        fetch('submit.php',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({nome:nome, cognome:cognome, email:email, telefono:tel})
+        }).then(function(r){return r.json();}).then(function(d){
+          if (btn) { btn.disabled=false; btn.textContent = origText || 'Invia richiesta'; }
+          if (d && d.ok) {
+            showBanner('Grazie! Ti ricontattiamo entro 24 ore.', true);
+            form.reset();
+            var e = document.getElementById('rs-hero-email'); if (e) e.value = '';
+            var t = document.getElementById('rs-hero-tel'); if (t) t.value = '';
+          } else {
+            showBanner((d && d.error) || 'Errore invio', false);
+          }
+        }).catch(function(){
+          if (btn) { btn.disabled=false; btn.textContent = origText || 'Invia richiesta'; }
+          showBanner('Errore di connessione', false);
         });
       }
-      function run(){ try { patchText(document.body); hideWhatsappBubble(); } catch(e){} }
+
+      // CTA esterni al form hero -> scrolla al form hero
+      document.addEventListener('click', function(e){
+        var el = e.target.closest && e.target.closest('a,button,[role="button"]');
+        if (!el) return;
+        // Link a sezioni interne anchor: lascia scrollare nativamente
+        var href = (el.getAttribute && el.getAttribute('href')) || '';
+        if (href && href.indexOf('/privacy') === 0) return;
+        if (href && href.indexOf('/termini') === 0) return;
+        if (href && href.indexOf('/policy') === 0) return;
+        // Se è dentro il form hero, lascia che il form gestisca
+        if (el.closest && el.closest('form[data-rs-patched]')) return;
+        // Se è un link a wa.me/whatsapp o CTA generica -> scroll al form hero
+        var txt = ((el.textContent||'')+' '+(el.getAttribute('aria-label')||'')).toLowerCase();
+        var isCta = /wa\.me|whatsapp|^tel:|^mailto:/i.test(href) ||
+                    /^#(contatto|contatti|contact|hero)/i.test(href) ||
+                    /analisi|richiedi|contatta|contatto|scrivi|prenota|parla con|inizia/i.test(txt);
+        if (!isCta) return;
+        e.preventDefault();
+        e.stopPropagation();
+        var form = findHeroForm() || document.querySelector('form[data-rs-patched]') || document.querySelector('form');
+        if (form) {
+          form.scrollIntoView({behavior:'smooth', block:'center'});
+          var firstInp = form.querySelector('input');
+          if (firstInp) setTimeout(function(){ firstInp.focus(); }, 400);
+        }
+      }, true);
+
+      function run(){
+        try { patchText(document.body); } catch(e){}
+        try { hideBubbleJS(); } catch(e){}
+        try { patchHeroForm(); } catch(e){}
+      }
+
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
       else run();
+
       var mo = new MutationObserver(function(){ run(); });
-      setTimeout(function(){ if (document.body) mo.observe(document.body, {childList:true, subtree:true, characterData:true}); }, 300);
-      // Fallback: riesegue ogni 1s per 20s per catturare widget con render ritardato (es. WhatsApp chat widget)
+      setTimeout(function(){
+        if (document.body) mo.observe(document.body, {childList:true, subtree:true, characterData:true});
+      }, 200);
+
+      // Retry veloce per catturare widget con render ritardato
       var ticks = 0;
       var iv = setInterval(function(){
         run();
-        if (++ticks > 20) clearInterval(iv);
-      }, 1000);
+        if (++ticks > 30) clearInterval(iv);
+      }, 500);
     })();
-
-    // === INTERCETTA TUTTI I CTA DEL FUNNEL ===
-    function isCtaEl(el){
-      if(!el) return false;
-      if(el.closest && el.closest('#lead-form-overlay')) return false;
-      var href=(el.getAttribute && el.getAttribute('href'))||'';
-      if(href && (href.indexOf('/privacy')===0 || href.indexOf('/termini')===0 || href.indexOf('/policy')===0)) return false;
-      if(href){
-        if(/wa\.me|whatsapp|api\.whatsapp|^tel:|^mailto:/i.test(href)) return true;
-        if(/^#(contatto|contatti|contact|hero|form)/i.test(href)) return true;
-      }
-      var txt=((el.textContent||'')+' '+(el.getAttribute('aria-label')||'')+' '+(el.getAttribute('title')||'')).toLowerCase();
-      if(/analisi|richiedi|contatta|contatto|scrivi|invia|prenota|candidati|parla con|scopri di pi|ricevi|inizia ora|inizia adesso|prova ora|richiesta/i.test(txt)) return true;
-      return false;
-    }
-    document.addEventListener('click',function(e){
-      var el=e.target.closest && e.target.closest('a,button,[role="button"]');
-      if(!el)return;
-      if(!isCtaEl(el))return;
-      e.preventDefault();
-      e.stopPropagation();
-      openLeadForm();
-    },true);
-
-    // Intercetta submit di qualsiasi form (non il nostro) -> apri overlay con dati precompilati
-    document.addEventListener('submit',function(e){
-      var f=e.target;
-      if (!f) return;
-      if (f.closest && f.closest('#lead-form-overlay')) return;
-      e.preventDefault();
-      e.stopPropagation();
-      openLeadForm();
-    },true);
     </script>
   </body>
 </html>
