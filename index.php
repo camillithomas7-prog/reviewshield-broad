@@ -137,109 +137,84 @@ header('Expires: 0');
         });
       }
 
-      // === PATCH FORM HERO: inietta email+telefono + submit -> submit.php ===
-      // Il form React ha solo "Nome e cognome" + "Nome attività". Aggiungo email+telefono
-      // prima del bottone submit e intercetto il submit per POST a submit.php.
-      function findHeroForm(){
+      // === SOSTITUISCI IL FORM REACT CON UN FORM CUSTOM ===
+      // Strategia: nascondo il form React con display:none e inserisco un form
+      // nostro (completamente fuori dal controllo di React) nello stesso slot.
+      // Questo evita qualsiasi lotta con la CSS grid interna del form React.
+      var RS_FORM_ID = 'rs-custom-form';
+
+      function findReactHeroForm(){
         var forms = document.querySelectorAll('form');
         for (var i=0; i<forms.length; i++) {
           var f = forms[i];
-          if (f.dataset.rsPatched) continue;
-          var hasNameInput = false;
+          if (f.id === RS_FORM_ID) continue;
           var inputs = f.querySelectorAll('input');
+          if (inputs.length === 0) continue;
+          // Cerca un input con "nome" nel placeholder/name/aria-label
           for (var j=0; j<inputs.length; j++) {
             var ph = ((inputs[j].placeholder||'')+' '+(inputs[j].name||'')+' '+(inputs[j].getAttribute('aria-label')||'')).toLowerCase();
-            if (/nome|name|mario/i.test(ph)) { hasNameInput = true; break; }
+            if (/nome|mario/i.test(ph)) return f;
           }
-          if (hasNameInput) return f;
         }
         return null;
       }
 
-      function patchHeroForm(){
-        var form = findHeroForm();
-        if (!form) return;
-        if (form.dataset.rsPatched) return;
-        form.dataset.rsPatched = '1';
+      function buildCustomForm(){
+        var f = document.createElement('form');
+        f.id = RS_FORM_ID;
+        f.setAttribute('novalidate','');
+        f.style.cssText = 'display:flex;flex-direction:column;gap:14px;width:100%;font-family:inherit';
+        f.innerHTML = [
+          '<div>',
+            '<label style="display:block;font-weight:600;font-size:14px;margin-bottom:6px;color:#111827">Nome e cognome</label>',
+            '<input id="rs-nome" type="text" placeholder="Mario Rossi" autocomplete="name" required style="width:100%;padding:12px 14px;border:1px solid #d1d5db;border-radius:10px;font-size:15px;box-sizing:border-box;font-family:inherit;outline:none;background:#fff;color:#111827">',
+          '</div>',
+          '<div>',
+            '<label style="display:block;font-weight:600;font-size:14px;margin-bottom:6px;color:#111827">Email</label>',
+            '<input id="rs-email" type="email" placeholder="mario@studio.it" autocomplete="email" required style="width:100%;padding:12px 14px;border:1px solid #d1d5db;border-radius:10px;font-size:15px;box-sizing:border-box;font-family:inherit;outline:none;background:#fff;color:#111827">',
+          '</div>',
+          '<div>',
+            '<label style="display:block;font-weight:600;font-size:14px;margin-bottom:6px;color:#111827">Numero di telefono</label>',
+            '<input id="rs-tel" type="tel" placeholder="333 1234567" autocomplete="tel" required style="width:100%;padding:12px 14px;border:1px solid #d1d5db;border-radius:10px;font-size:15px;box-sizing:border-box;font-family:inherit;outline:none;background:#fff;color:#111827">',
+          '</div>',
+          '<div>',
+            '<label style="display:block;font-weight:600;font-size:14px;margin-bottom:6px;color:#111827">Nome attività <span style="font-weight:400;color:#6b7280">(opzionale)</span></label>',
+            '<input id="rs-attivita" type="text" placeholder="Es. Ristorante La Terrazza Milano" autocomplete="organization" style="width:100%;padding:12px 14px;border:1px solid #d1d5db;border-radius:10px;font-size:15px;box-sizing:border-box;font-family:inherit;outline:none;background:#fff;color:#111827">',
+          '</div>',
+          '<button id="rs-submit" type="submit" style="margin-top:6px;width:100%;padding:14px 20px;background:#059669;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s">',
+            '<span>Invia richiesta</span>',
+            '<span style="font-size:18px;line-height:1">→</span>',
+          '</button>',
+          '<p style="text-align:center;font-size:13px;color:#6b7280;margin:0">Inviando il form accetti la nostra <a href="/privacy" style="color:#059669;text-decoration:underline">Privacy Policy</a></p>'
+        ].join('');
 
-        // Trova il primo input esistente per clonare lo stile
-        var templateInput = form.querySelector('input[type="text"], input:not([type])');
-        if (!templateInput) return;
-        var submitBtn = form.querySelector('button[type="submit"], button:last-of-type') || form.querySelector('button');
-        if (!submitBtn) return;
+        // Focus ring verde sui campi
+        f.querySelectorAll('input').forEach(function(inp){
+          inp.addEventListener('focus', function(){ inp.style.borderColor='#059669'; inp.style.boxShadow='0 0 0 3px rgba(5,150,105,.15)'; });
+          inp.addEventListener('blur', function(){ inp.style.borderColor='#d1d5db'; inp.style.boxShadow='none'; });
+        });
+        var btn = f.querySelector('#rs-submit');
+        btn.addEventListener('mouseenter', function(){ btn.style.background='#047857'; });
+        btn.addEventListener('mouseleave', function(){ btn.style.background='#059669'; });
 
-        // Costruisci nuovi input email + telefono clonando il template
-        function makeInput(type, placeholder, id){
-          var inp = templateInput.cloneNode(false);
-          inp.removeAttribute('value');
-          inp.removeAttribute('name');
-          inp.type = type;
-          inp.placeholder = placeholder;
-          inp.id = id;
-          inp.required = true;
-          inp.value = '';
-          return inp;
-        }
-        function makeLabel(text){
-          // Prova a clonare una label esistente, se c'è
-          var existingLabel = form.querySelector('label');
-          var lbl;
-          if (existingLabel) {
-            lbl = existingLabel.cloneNode(false);
-            lbl.textContent = text;
-          } else {
-            lbl = document.createElement('label');
-            lbl.textContent = text;
-            lbl.style.display = 'block';
-            lbl.style.fontWeight = '600';
-            lbl.style.fontSize = '14px';
-            lbl.style.marginBottom = '6px';
-            lbl.style.marginTop = '12px';
-          }
-          lbl.htmlFor = '';
-          return lbl;
-        }
-
-        // Wrapper group: clona il wrapper dell'input esistente
-        var templateWrap = templateInput.closest('div[class]') || templateInput.parentElement;
-        function makeField(labelText, type, placeholder, id){
-          var wrap;
-          if (templateWrap) {
-            wrap = templateWrap.cloneNode(false);
-            wrap.removeAttribute('style');
-          } else {
-            wrap = document.createElement('div');
-            wrap.style.marginBottom = '12px';
-          }
-          var lbl = makeLabel(labelText);
-          var inp = makeInput(type, placeholder, id);
-          wrap.appendChild(lbl);
-          wrap.appendChild(inp);
-          return wrap;
-        }
-
-        var emailField = makeField('Email', 'email', 'es. mario@studio.it', 'rs-hero-email');
-        var telField = makeField('Numero di telefono', 'tel', 'es. 333 1234567', 'rs-hero-tel');
-
-        // Inserisci prima del bottone (o del suo wrapper se è in un contenitore)
-        var anchor = submitBtn.closest('div:not(form)') || submitBtn;
-        anchor.parentElement.insertBefore(emailField, anchor);
-        anchor.parentElement.insertBefore(telField, anchor);
-
-        // Intercetta submit
-        form.addEventListener('submit', function(e){
+        f.addEventListener('submit', function(e){
           e.preventDefault();
           e.stopPropagation();
-          handleSubmit(form);
-        }, true);
-        // Anche click del bottone (nel caso il form non abbia submit listener)
-        submitBtn.addEventListener('click', function(e){
-          if (submitBtn.type !== 'submit') {
-            e.preventDefault();
-            e.stopPropagation();
-            handleSubmit(form);
-          }
-        }, true);
+          handleSubmit(f);
+        });
+        return f;
+      }
+
+      function patchHeroForm(){
+        // Se il form custom è già presente, non rifare nulla
+        if (document.getElementById(RS_FORM_ID) && document.getElementById(RS_FORM_ID).isConnected) return;
+        var reactForm = findReactHeroForm();
+        if (!reactForm) return;
+        // Nascondi il form React SENZA rimuoverlo (React continua a gestirlo)
+        reactForm.style.display = 'none';
+        // Inserisci il form custom subito prima
+        var custom = buildCustomForm();
+        reactForm.parentNode.insertBefore(custom, reactForm);
       }
 
       function showBanner(text, ok){
@@ -252,61 +227,48 @@ header('Expires: 0');
       }
 
       function handleSubmit(form){
-        // Raccogli nome+cognome dal primo input text
-        var txtInputs = form.querySelectorAll('input[type="text"], input:not([type]), input[type="search"]');
-        var raw = '';
-        for (var i=0; i<txtInputs.length; i++) {
-          var v = (txtInputs[i].value||'').trim();
-          if (v) { raw = v; break; }
-        }
-        var parts = raw.split(/\s+/).filter(Boolean);
+        var nomeRaw = ((document.getElementById('rs-nome')||{}).value || '').trim();
+        var email = ((document.getElementById('rs-email')||{}).value || '').trim();
+        var tel = ((document.getElementById('rs-tel')||{}).value || '').trim();
+        var attivita = ((document.getElementById('rs-attivita')||{}).value || '').trim();
+        var parts = nomeRaw.split(/\s+/).filter(Boolean);
         var nome = parts[0] || '';
         var cognome = parts.slice(1).join(' ') || '';
-        var email = (document.getElementById('rs-hero-email')||{}).value || '';
-        var tel = (document.getElementById('rs-hero-tel')||{}).value || '';
-        email = email.trim(); tel = tel.trim();
 
         if (!nome || !cognome) { showBanner('Inserisci nome e cognome', false); return; }
-        if (!email) { showBanner('Inserisci email', false); return; }
-        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { showBanner('Email non valida', false); return; }
+        if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { showBanner('Email non valida', false); return; }
         if (!tel) { showBanner('Inserisci telefono', false); return; }
 
-        var btn = form.querySelector('button[type="submit"], button:last-of-type') || form.querySelector('button');
-        var origText = btn ? btn.textContent : '';
-        if (btn) { btn.disabled = true; btn.textContent = 'Invio in corso...'; }
+        var btn = form.querySelector('#rs-submit');
+        var origHTML = btn ? btn.innerHTML : '';
+        if (btn) { btn.disabled = true; btn.innerHTML = '<span>Invio in corso...</span>'; btn.style.opacity='.7'; }
 
-        fetch('submit.php',{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({nome:nome, cognome:cognome, email:email, telefono:tel})
-        }).then(function(r){return r.json();}).then(function(d){
-          if (btn) { btn.disabled=false; btn.textContent = origText || 'Invia richiesta'; }
+        fetch('submit.php', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({nome:nome, cognome:cognome, email:email, telefono:tel, attivita:attivita})
+        }).then(function(r){ return r.json(); }).then(function(d){
+          if (btn) { btn.disabled = false; btn.innerHTML = origHTML; btn.style.opacity='1'; }
           if (d && d.ok) {
             showBanner('Grazie! Ti ricontattiamo entro 24 ore.', true);
-            form.reset();
-            var e = document.getElementById('rs-hero-email'); if (e) e.value = '';
-            var t = document.getElementById('rs-hero-tel'); if (t) t.value = '';
+            form.querySelectorAll('input').forEach(function(i){ i.value = ''; });
           } else {
             showBanner((d && d.error) || 'Errore invio', false);
           }
         }).catch(function(){
-          if (btn) { btn.disabled=false; btn.textContent = origText || 'Invia richiesta'; }
+          if (btn) { btn.disabled = false; btn.innerHTML = origHTML; btn.style.opacity='1'; }
           showBanner('Errore di connessione', false);
         });
       }
 
-      // CTA esterni al form hero -> scrolla al form hero
+      // CTA esterni al form hero -> scrolla al form custom
       document.addEventListener('click', function(e){
         var el = e.target.closest && e.target.closest('a,button,[role="button"]');
         if (!el) return;
-        // Link a sezioni interne anchor: lascia scrollare nativamente
         var href = (el.getAttribute && el.getAttribute('href')) || '';
-        if (href && href.indexOf('/privacy') === 0) return;
-        if (href && href.indexOf('/termini') === 0) return;
-        if (href && href.indexOf('/policy') === 0) return;
-        // Se è dentro il form hero, lascia che il form gestisca
-        if (el.closest && el.closest('form[data-rs-patched]')) return;
-        // Se è un link a wa.me/whatsapp o CTA generica -> scroll al form hero
+        if (href && (href.indexOf('/privacy') === 0 || href.indexOf('/termini') === 0 || href.indexOf('/policy') === 0)) return;
+        // Dentro il nostro form custom -> lascia al submit nativo
+        if (el.closest && el.closest('#'+RS_FORM_ID)) return;
         var txt = ((el.textContent||'')+' '+(el.getAttribute('aria-label')||'')).toLowerCase();
         var isCta = /wa\.me|whatsapp|^tel:|^mailto:/i.test(href) ||
                     /^#(contatto|contatti|contact|hero)/i.test(href) ||
@@ -314,7 +276,7 @@ header('Expires: 0');
         if (!isCta) return;
         e.preventDefault();
         e.stopPropagation();
-        var form = findHeroForm() || document.querySelector('form[data-rs-patched]') || document.querySelector('form');
+        var form = document.getElementById(RS_FORM_ID) || findReactHeroForm();
         if (form) {
           form.scrollIntoView({behavior:'smooth', block:'center'});
           var firstInp = form.querySelector('input');
