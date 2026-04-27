@@ -595,6 +595,15 @@ function localSearch(q){
 }
 if('scrollRestoration' in history) history.scrollRestoration='manual';
 document.addEventListener('click',function(){document.querySelectorAll('.panel-switcher.open').forEach(function(s){s.classList.remove('open')})});
+(function(){
+  fetch('https://mediumslateblue-woodcock-923070.hostingersite.com/panels-hidden.php',{cache:'no-store'}).then(function(r){return r.json()}).then(function(data){
+    var hidden=Array.isArray(data.hidden)?data.hidden:[];
+    if(!hidden.length) return;
+    document.querySelectorAll('.panel-switcher__menu a').forEach(function(a){
+      try{var u=new URL(a.href);if(hidden.indexOf(u.hostname.toLowerCase())!==-1) a.style.display='none';}catch(e){}
+    });
+  }).catch(function(){});
+})();
 document.addEventListener('submit',function(e){
   if(e.target.tagName==='FORM'){sessionStorage.setItem('adminScroll',window.scrollY);sessionStorage.setItem('adminFromSubmit','1');}
 },true);
