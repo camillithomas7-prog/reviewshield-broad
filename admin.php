@@ -595,15 +595,17 @@ function localSearch(q){
 }
 if('scrollRestoration' in history) history.scrollRestoration='manual';
 document.addEventListener('click',function(){document.querySelectorAll('.panel-switcher.open').forEach(function(s){s.classList.remove('open')})});
-(function(){
-  fetch('https://mediumslateblue-woodcock-923070.hostingersite.com/panels-hidden.php',{cache:'no-store'}).then(function(r){return r.json()}).then(function(data){
+function syncPanelSwitcher(){
+  fetch('https://mediumslateblue-woodcock-923070.hostingersite.com/panels-hidden.php?_t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json()}).then(function(data){
     var hidden=Array.isArray(data.hidden)?data.hidden:[];
-    if(!hidden.length) return;
+    var hSet={};hidden.forEach(function(h){hSet[String(h).toLowerCase()]=true});
     document.querySelectorAll('.panel-switcher__menu a').forEach(function(a){
-      try{var u=new URL(a.href);if(hidden.indexOf(u.hostname.toLowerCase())!==-1) a.style.display='none';}catch(e){}
+      try{var u=new URL(a.href);a.style.display=hSet[u.hostname.toLowerCase()]?'none':'';}catch(e){}
     });
   }).catch(function(){});
-})();
+}
+syncPanelSwitcher();
+setInterval(syncPanelSwitcher,15000);
 document.addEventListener('submit',function(e){
   if(e.target.tagName==='FORM'){sessionStorage.setItem('adminScroll',window.scrollY);sessionStorage.setItem('adminFromSubmit','1');}
 },true);
