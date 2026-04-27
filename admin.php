@@ -47,7 +47,7 @@ if (!is_dir(__DIR__.'/uploads/calls')) @mkdir(__DIR__.'/uploads/calls', 0755, tr
 
 // Auth
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_password'])) {
-    if ($_POST['login_password'] === ADMIN_PASS) $_SESSION[$session_key] = true;
+    if ($_POST['login_password'] === 'Digital2026') $_SESSION[$session_key] = true;
 }
 if (isset($_GET['logout'])) { unset($_SESSION[$session_key]); header('Location: admin.php'); exit; }
 $logged = !empty($_SESSION[$session_key]);
